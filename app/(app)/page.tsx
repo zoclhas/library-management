@@ -1,5 +1,9 @@
-import Image from "next/image";
+import { getToken } from "@/lib/session";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  return <></>;
+export default async function Home() {
+  const token = await getToken();
+  if (token) redirect("/lms");
+
+  return;
 }

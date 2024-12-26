@@ -1,5 +1,5 @@
 import { LoginFormSchema, FormState } from "@/lib/definitions";
-import { createSession } from "@/lib/session";
+import { createSession, deleteSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
 export async function login(state: FormState, formData: FormData) {
@@ -39,6 +39,11 @@ export async function login(state: FormState, formData: FormData) {
   await createSession(user.token);
 
   redirect("/");
+}
+
+export async function logout() {
+  deleteSession();
+  redirect("login");
 }
 
 interface UserResponseOk {
