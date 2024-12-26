@@ -1,16 +1,5 @@
 "use client";
 
-import * as React from "react";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  ColumnFiltersState,
-  getFilteredRowModel,
-  useReactTable,
-  FilterFn,
-} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -19,51 +8,77 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import * as React from "react";
+import { useDebounce } from "react-use";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { PaginatedDocs } from "payload";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-const nameOrIdFilter: FilterFn<any> = (row, columnId, filterValue) => {
-  const name = String(row.original.name || "").toLowerCase();
-  const sid = String(row.original.sid || "").toLowerCase();
-  const searchValue = String(filterValue || "").toLowerCase();
-
-  return name.includes(searchValue) || sid.includes(searchValue);
-};
-
 export function DataTable<TData, TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
+  paginatedDocs,
+}: DataTableProps<TData, TValue> & { paginatedDocs: PaginatedDocs }) {
+  const [query, setQuery] = React.useState<string>("");
+  const [debouncedQuery, setDebouncedQuery] = React.useState("");
 
+  useDebounce(
+    () => {
+      setDebouncedQuery(query);
+    },
+    400,
+    [query],
+  );
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      columnFilters,
-    },
-    globalFilterFn: nameOrIdFilter,
   });
 
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const createQueryString = React.useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set(name, value);
+      } else {
+        params.delete(name);
+      }
+      return params.toString();
+    },
+    [searchParams],
+  );
+
+  React.useEffect(() => {
+    router.push(pathname + "?" + createQueryString("q", debouncedQuery));
+  }, [debouncedQuery, router, pathname, createQueryString]);
   return (
     <div>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter Names or ID..."
-          value={(table.getState().globalFilter as string) ?? ""}
-          onChange={(event) => table.setGlobalFilter(event.target.value)}
+          value={searchParams.get("query") ?? query}
+          onChange={(event) => setQuery(event.target.value)}
           className="max-w-sm"
         />
       </div>
@@ -123,16 +138,28 @@ export function DataTable<TData, TValue>({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          onClick={() =>
+            router.push(
+              pathname +
+                "?" +
+                createQueryString("page", String(paginatedDocs.prevPage)),
+            )
+          }
+          disabled={!paginatedDocs.hasPrevPage}
         >
           Previous
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          onClick={() =>
+            router.push(
+              pathname +
+                "?" +
+                createQueryString("page", String(paginatedDocs.nextPage)),
+            )
+          }
+          disabled={!paginatedDocs.hasNextPage}
         >
           Next
         </Button>

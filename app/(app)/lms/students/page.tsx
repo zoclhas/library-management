@@ -7,17 +7,40 @@ import { UploadStudents } from "./upload/upload-dialog";
 import { DataTable } from "./table/data-table";
 import { studentColumns } from "./table/columns";
 
-async function getStudents() {
+async function getStudents(q: string, page: number) {
   const payload = await getPayload({ config });
 
   return payload.find({
     collection: "student",
-    limit: 9000,
+    limit: 10,
+    page,
+    where: {
+      or: [
+        {
+          name: {
+            like: q,
+          },
+        },
+        {
+          sid: {
+            like: q,
+          },
+        },
+      ],
+    },
   });
 }
 
-export default async function StudentsPage() {
-  const students = await getStudents();
+export default async function StudentsPage({
+  searchParams,
+}: {
+  searchParams: {
+    q?: string;
+    page?: string;
+  };
+}) {
+  const { q, page } = searchParams;
+  const students = await getStudents(q ?? "", Number(page) ?? 1);
 
   return (
     <>
@@ -30,7 +53,11 @@ export default async function StudentsPage() {
         </Button>
       </section>
       <section className="mt-8 pb-16">
-        <DataTable columns={studentColumns} data={students.docs} />
+        <DataTable
+          columns={studentColumns}
+          data={students.docs}
+          paginatedDocs={students}
+        />
       </section>
     </>
   );

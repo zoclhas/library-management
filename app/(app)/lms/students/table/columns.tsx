@@ -79,8 +79,8 @@ export const studentColumns: ColumnDef<Student>[] = [
 function gradeTransform(grade: string) {
   // Perform reverse transformations
   let reversedGrade = grade
-    .replace("kg_1", "Kg 1")
-    .replace("kg_2", "Kg 2")
+    .replace("kg_1", "KG 1")
+    .replace("kg_2", "KG 2")
     .replace("pre_kg", "Pre KG");
 
   if (!reversedGrade.startsWith("K") && !reversedGrade.startsWith("P"))
