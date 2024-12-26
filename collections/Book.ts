@@ -10,12 +10,20 @@ export const Book: CollectionConfig = {
       type: "row",
       fields: [
         {
+          name: "date",
+          type: "date",
+          required: true,
+          admin: {
+            width: "20%",
+          },
+        },
+        {
           name: "id",
           label: "Book ID",
           type: "number",
           required: true,
           admin: {
-            width: "33%",
+            width: "20%",
           },
         },
         {
@@ -23,34 +31,147 @@ export const Book: CollectionConfig = {
           type: "text",
           required: true,
           admin: {
-            width: "66%",
+            width: "60%",
           },
         },
       ],
     },
     {
-      name: "condition",
-      type: "select",
-      options: [
+      type: "row",
+      fields: [
         {
-          value: "original",
-          label: "Original",
+          name: "author",
+          type: "text",
+          required: true,
+          admin: {
+            width: "40%",
+          },
         },
         {
-          value: "torn",
-          label: "Torn",
+          name: "publisher",
+          label: "Place & Publisher",
+          type: "text",
+          required: true,
+          admin: {
+            width: "40%",
+          },
         },
         {
-          value: "missing_pages",
-          label: "Missing Pages",
-        },
-        {
-          value: "lost",
-          label: "Lost",
+          name: "year",
+          type: "number",
+          required: true,
+          admin: {
+            width: "20%",
+          },
         },
       ],
-      defaultValue: "original",
-      required: true,
+    },
+    {
+      type: "row",
+      fields: [
+        {
+          name: "volume",
+          type: "number",
+          required: true,
+          defaultValue: 1,
+          admin: {
+            width: "20%",
+          },
+        },
+        {
+          name: "total_volume",
+          label: "Total Volume",
+          type: "number",
+          required: true,
+          defaultValue: 1,
+          admin: {
+            width: "20%",
+          },
+        },
+        {
+          name: "source",
+          type: "text",
+          required: true,
+          admin: {
+            width: "40%",
+          },
+        },
+        {
+          name: "cost",
+          type: "text",
+          defaultValue: "AED ",
+          required: true,
+          admin: {
+            width: "20%",
+          },
+        },
+      ],
+    },
+    {
+      type: "row",
+      fields: [
+        {
+          name: "class_no",
+          label: "Class No.",
+          type: "text",
+          required: true,
+          admin: {
+            width: "20%",
+          },
+        },
+        {
+          name: "isbn",
+          label: "ISBN No.",
+          type: "text",
+          defaultValue: "###",
+          admin: {
+            width: "20%",
+          },
+        },
+        {
+          name: "voucher_no",
+          label: "Voucher No.",
+          type: "number",
+          admin: {
+            width: "20%",
+          },
+        },
+        {
+          name: "voucher_date",
+          label: "Voucher Date",
+          type: "date",
+          admin: {
+            width: "20%",
+          },
+        },
+        {
+          name: "condition",
+          type: "select",
+          options: [
+            {
+              value: "original",
+              label: "Original",
+            },
+            {
+              value: "torn",
+              label: "Torn",
+            },
+            {
+              value: "missing_pages",
+              label: "Missing Pages",
+            },
+            {
+              value: "lost",
+              label: "Lost",
+            },
+          ],
+          defaultValue: "original",
+          required: true,
+          admin: {
+            width: "20%",
+          },
+        },
+      ],
     },
   ],
 };
