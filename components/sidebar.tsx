@@ -19,7 +19,7 @@ import { ThemeSwitch } from "./theme-switch";
 const items = [
   {
     title: "Home",
-    url: "/lms/lms",
+    url: "/lms",
     icon: Home,
   },
   {
