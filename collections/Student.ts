@@ -4,22 +4,26 @@ export const Student: CollectionConfig = {
   slug: "student",
   access: {
     read: () => true,
+    create: ({ req: { user } }) => {
+      return Boolean(user);
+    },
   },
   fields: [
     {
       type: "row",
       fields: [
         {
-          name: "id",
+          name: "sid",
           label: "Student ID",
           type: "number",
           required: true,
           admin: {
-            width: "33%",
+            width: "34%",
           },
         },
         {
-          name: "Full Name",
+          name: "name",
+          label: "Full Name",
           type: "text",
           required: true,
           admin: {

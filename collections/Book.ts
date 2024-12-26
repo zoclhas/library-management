@@ -18,7 +18,7 @@ export const Book: CollectionConfig = {
           },
         },
         {
-          name: "id",
+          name: "bid",
           label: "Book ID",
           type: "number",
           required: true,

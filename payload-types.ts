@@ -106,8 +106,9 @@ export interface Media {
  * via the `definition` "student".
  */
 export interface Student {
-  id: number;
-  'Full Name': string;
+  id: string;
+  sid: number;
+  name: string;
   grade: 'pre_kg' | 'kg_1' | 'kg_2' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12';
   section: string;
   updatedAt: string;
@@ -118,8 +119,21 @@ export interface Student {
  * via the `definition` "book".
  */
 export interface Book {
-  id: number;
+  id: string;
+  date: string;
+  bid: number;
   title: string;
+  author: string;
+  publisher: string;
+  year: number;
+  volume: number;
+  total_volume: number;
+  source: string;
+  cost: string;
+  class_no: string;
+  isbn?: string | null;
+  voucher_no?: number | null;
+  voucher_date?: string | null;
   condition: 'original' | 'torn' | 'missing_pages' | 'lost';
   updatedAt: string;
   createdAt: string;
@@ -262,8 +276,8 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "student_select".
  */
 export interface StudentSelect<T extends boolean = true> {
-  id?: T;
-  'Full Name'?: T;
+  sid?: T;
+  name?: T;
   grade?: T;
   section?: T;
   updatedAt?: T;
@@ -274,8 +288,20 @@ export interface StudentSelect<T extends boolean = true> {
  * via the `definition` "book_select".
  */
 export interface BookSelect<T extends boolean = true> {
-  id?: T;
+  date?: T;
+  bid?: T;
   title?: T;
+  author?: T;
+  publisher?: T;
+  year?: T;
+  volume?: T;
+  total_volume?: T;
+  source?: T;
+  cost?: T;
+  class_no?: T;
+  isbn?: T;
+  voucher_no?: T;
+  voucher_date?: T;
   condition?: T;
   updatedAt?: T;
   createdAt?: T;
