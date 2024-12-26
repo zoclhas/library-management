@@ -19,22 +19,22 @@ import { ThemeSwitch } from "./theme-switch";
 const items = [
   {
     title: "Home",
-    url: "/lms",
+    url: "/lms/lms",
     icon: Home,
   },
   {
     title: "Add Log",
-    url: "/add",
+    url: "/lms/add",
     icon: BookPlus,
   },
   {
     title: "Books",
-    url: "/books",
+    url: "/lms/books",
     icon: BookCopy,
   },
   {
     title: "Students",
-    url: "/students",
+    url: "/lms/students",
     icon: Users,
   },
 ];

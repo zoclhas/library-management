@@ -4,7 +4,7 @@ export default async function Dashboard() {
   return (
     <>
       <section className="pt-16">
-        <Card className="border-0 bg-zinc-100 shadow-none">
+        <Card className="border-0 bg-zinc-100 shadow-none dark:bg-zinc-900">
           <CardHeader>
             <CardTitle className="text-xl">Hello, Admin</CardTitle>
           </CardHeader>
