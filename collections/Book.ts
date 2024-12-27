@@ -44,7 +44,7 @@ export const Book: CollectionConfig = {
           type: "text",
           required: true,
           admin: {
-            width: "40%",
+            width: "20%",
           },
         },
         {
@@ -58,6 +58,14 @@ export const Book: CollectionConfig = {
         },
         {
           name: "year",
+          type: "number",
+          required: true,
+          admin: {
+            width: "20%",
+          },
+        },
+        {
+          name: "pages",
           type: "number",
           required: true,
           admin: {
@@ -131,7 +139,7 @@ export const Book: CollectionConfig = {
         {
           name: "voucher_no",
           label: "Voucher No.",
-          type: "number",
+          type: "text",
           admin: {
             width: "20%",
           },

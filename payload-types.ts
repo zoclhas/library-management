@@ -126,13 +126,14 @@ export interface Book {
   author: string;
   publisher: string;
   year: number;
+  pages: number;
   volume: number;
   total_volume: number;
   source: string;
   cost: string;
   class_no: string;
   isbn?: string | null;
-  voucher_no?: number | null;
+  voucher_no?: string | null;
   voucher_date?: string | null;
   condition: 'original' | 'torn' | 'missing_pages' | 'lost';
   updatedAt: string;
@@ -294,6 +295,7 @@ export interface BookSelect<T extends boolean = true> {
   author?: T;
   publisher?: T;
   year?: T;
+  pages?: T;
   volume?: T;
   total_volume?: T;
   source?: T;
