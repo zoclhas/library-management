@@ -2,6 +2,7 @@
 
 import { getToken } from "@/lib/session";
 import config from "@payload-config";
+import { revalidatePath } from "next/cache";
 import { getPayload } from "payload";
 
 interface Student {
@@ -115,6 +116,7 @@ export async function uploadStudentCsvData(students: Student[]) {
       });
     }
 
+    revalidatePath("/lms/students");
     return {
       success: true,
     };

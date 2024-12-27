@@ -31,7 +31,9 @@ export function UploadStudentsForm({
   );
 
   useEffect(() => {
-    if (uState?.success) setOpenAction(false);
+    if (uState?.success) {
+      setOpenAction(false);
+    }
   }, [uState, setOpenAction]);
 
   return (
