@@ -4,6 +4,8 @@ import { UserPlus } from "lucide-react";
 import Link from "next/link";
 import { getPayload } from "payload";
 import { UploadBooks } from "./upload/upload-dialog";
+import { DataTable } from "@/components/data-table";
+import { bookColumns } from "./table/columns";
 
 async function getBooks(q: string, page: number) {
   const payload = await getPayload({ config });
@@ -51,11 +53,11 @@ export default async function BooksPage({
         </Button>
       </section>
       <section className="mt-8 pb-16">
-        {/* <DataTable */}
-        {/*   columns={studentColumns} */}
-        {/*   data={students.docs} */}
-        {/*   paginatedDocs={students} */}
-        {/* /> */}
+        <DataTable
+          columns={bookColumns}
+          data={books.docs}
+          paginatedDocs={books}
+        />
       </section>
     </>
   );

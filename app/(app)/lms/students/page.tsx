@@ -4,8 +4,8 @@ import { UserPlus } from "lucide-react";
 import Link from "next/link";
 import { getPayload } from "payload";
 import { UploadStudents } from "./upload/upload-dialog";
-import { DataTable } from "./table/data-table";
 import { studentColumns } from "./table/columns";
+import { DataTable } from "@/components/data-table";
 
 async function getStudents(q: string, page: number) {
   const payload = await getPayload({ config });
