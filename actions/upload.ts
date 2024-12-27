@@ -104,16 +104,27 @@ export async function uploadStudentCsvData(students: Student[]) {
       const sid = parseInt(strId, 10);
       if (isNaN(sid)) continue;
 
-      await payload.create({
+      const existing = await payload.find({
         collection: "student",
-        data: {
-          sid,
-          name,
-          // @ts-expect-error Nah just ignore this :>, basically string -> constant strings error
-          grade,
-          section,
+        where: {
+          sid: {
+            like: sid,
+          },
         },
       });
+
+      if (!existing.totalDocs) {
+        await payload.create({
+          collection: "student",
+          data: {
+            sid,
+            name,
+            // @ts-expect-error Nah just ignore this :>, basically string -> constant strings error
+            grade,
+            section,
+          },
+        });
+      }
     }
 
     revalidatePath("/lms/students");
@@ -121,6 +132,7 @@ export async function uploadStudentCsvData(students: Student[]) {
       success: true,
     };
   } catch (error) {
+    revalidatePath("/lms/students");
     return { success: false, error: (error as Error).message };
   }
 }

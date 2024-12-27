@@ -53,6 +53,7 @@ export default function AddStudent() {
                       name="sid"
                       placeholder="####"
                       type="number"
+                      min={0}
                       required
                     />
                   </div>
