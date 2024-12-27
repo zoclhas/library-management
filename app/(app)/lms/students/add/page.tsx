@@ -43,7 +43,7 @@ export default function AddStudent() {
                 )}
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 pb-4 sm:grid-cols-[0.5fr_1fr]">
+                <div className="grid gap-4 pb-4 sm:grid-cols-[0.5fr_1.5fr]">
                   <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="sid">
                       Student ID <span className="text-red-600">*</span>
