@@ -82,11 +82,13 @@ export async function processStudentCsvData(
 
 export async function uploadStudentCsvData(students: Student[]) {
   try {
-    const payload = await getPayload({ config });
     const token = await getToken();
     if (!token) {
       throw new Error("Unauthenticated.");
     }
+
+    const payload = await getPayload({ config });
+
     for (let i = 0; i < students.length; i++) {
       const { id: strId, name, section } = students[i];
       const grade = students[i].grade

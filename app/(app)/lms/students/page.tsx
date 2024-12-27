@@ -34,12 +34,12 @@ async function getStudents(q: string, page: number) {
 export default async function StudentsPage({
   searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     q?: string;
     page?: string;
-  };
+  }>;
 }) {
-  const { q, page } = searchParams;
+  const { q, page } = await searchParams;
   const students = await getStudents(q ?? "", Number(page) ?? 1);
 
   return (

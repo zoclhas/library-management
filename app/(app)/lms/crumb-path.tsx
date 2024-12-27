@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React from "react";
 
 export const BreadcrumbsPath = () => {
   const pathname = usePathname().replace("/", "");
@@ -18,7 +19,7 @@ export const BreadcrumbsPath = () => {
     <Breadcrumb>
       <BreadcrumbList>
         {pathnames.map((p, i) => (
-          <>
+          <React.Fragment key={p + i}>
             <BreadcrumbItem className="hidden md:block">
               <BreadcrumbLink asChild>
                 <Link href={joinPath(pathnames, i)} className="capitalize">
@@ -29,7 +30,7 @@ export const BreadcrumbsPath = () => {
             {i < pathnames.length - 1 && (
               <BreadcrumbSeparator className="hidden md:block" />
             )}
-          </>
+          </React.Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>
