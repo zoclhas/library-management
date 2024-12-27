@@ -143,6 +143,22 @@ export async function uploadStudentCsvData(students: Student[]) {
             section,
           },
         });
+      } else {
+        await payload.update({
+          collection: "student",
+          where: {
+            id: {
+              like: existing.docs[0].id,
+            },
+          },
+          data: {
+            sid,
+            name,
+            // @ts-expect-error Nah just ignore this :>, basically string -> constant strings error
+            grade,
+            section,
+          },
+        });
       }
     }
 
