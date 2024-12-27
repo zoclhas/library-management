@@ -94,7 +94,7 @@ export function UploadStudentsForm({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {state.students?.map((s) => (
+                {state.students?.slice(0, 500).map((s) => (
                   <TableRow key={s.id}>
                     <TableCell className="font-medium">{s.id}</TableCell>
                     <TableCell>{s.name}</TableCell>

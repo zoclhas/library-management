@@ -1,6 +1,6 @@
 "use client";
 
-import { processStudentCsvData, uploadStudentCsvData } from "@/actions/upload";
+import { processBookCsvData, uploadBookCsvData } from "@/actions/upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,11 +22,11 @@ export function UploadBooksForm({
   setOpenAction: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [state, action, pending] = useActionState(
-    processStudentCsvData,
+    processBookCsvData,
     undefined,
   );
   const [uState, uAction, uPending] = useActionState(
-    () => uploadStudentCsvData(state!.students!),
+    () => uploadBookCsvData(state!.books!),
     undefined,
   );
 
@@ -79,27 +79,53 @@ export function UploadBooksForm({
                   <LoaderIcon className="animate-spin" />{" "}
                 </span>
               )}
-              Add all students
+              Add all books
             </Button>
           </form>
-          <div className="max-h-96 overflow-scroll pt-4">
+          <div className="max-h-96 max-w-[550px] overflow-scroll pt-4">
             <Table>
-              <TableCaption>List of Students</TableCaption>
+              <TableCaption>List of Books</TableCaption>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Date</TableHead>
                   <TableHead>ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="min-w-[90px]">Grade</TableHead>
-                  <TableHead>Section</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Author</TableHead>
+                  <TableHead>Place &amp; Publisher</TableHead>
+                  <TableHead>Year</TableHead>
+                  <TableHead>Pages</TableHead>
+                  <TableHead>Volume</TableHead>
+                  <TableHead>Total Vol.</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Cost</TableHead>
+                  <TableHead>Class No.</TableHead>
+                  <TableHead>ISBN No.</TableHead>
+                  <TableHead>Voucher No.</TableHead>
+                  <TableHead>Voucher Date</TableHead>
+                  <TableHead>Condition</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {state.students?.map((s) => (
-                  <TableRow key={s.id}>
-                    <TableCell className="font-medium">{s.id}</TableCell>
-                    <TableCell>{s.name}</TableCell>
-                    <TableCell>{s.grade}</TableCell>
-                    <TableCell>{s.section}</TableCell>
+                {state.books?.slice(0, 500).map((s) => (
+                  <TableRow key={s.bid}>
+                    <TableCell>{formatIsoDate(s.date)}</TableCell>
+                    <TableCell className="font-medium">{s.bid}</TableCell>
+                    <TableCell>{s.title}</TableCell>
+                    <TableCell>{s.author}</TableCell>
+                    <TableCell>{s.publisher}</TableCell>
+                    <TableCell>{s.year}</TableCell>
+                    <TableCell>{s.pages}</TableCell>
+                    <TableCell>{s.volume}</TableCell>
+                    <TableCell>{s.total_volume}</TableCell>
+                    <TableCell>{s.source}</TableCell>
+                    <TableCell>{s.cost}</TableCell>
+                    <TableCell>{s.class_no}</TableCell>
+                    <TableCell>{s.isbn ?? "###"}</TableCell>
+                    <TableCell>{s.voucher_no ?? "null"}</TableCell>
+                    <TableCell>
+                      {s.voucher_date ? formatIsoDate(s.voucher_date) : "null"}
+                    </TableCell>
+                    <TableCell>{s.condition}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -109,4 +135,13 @@ export function UploadBooksForm({
       )}
     </>
   );
+}
+
+function formatIsoDate(date: string): string {
+  const d = new Date(date);
+  return d.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 }

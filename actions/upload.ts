@@ -4,6 +4,7 @@ import { getToken } from "@/lib/session";
 import config from "@payload-config";
 import { revalidatePath } from "next/cache";
 import { getPayload } from "payload";
+import type { Book as BookPayload } from "@/payload-types";
 
 interface Student {
   id: string;
@@ -12,7 +13,7 @@ interface Student {
   section: string;
 }
 
-interface Book {
+export interface Book {
   date: string;
   bid: number;
   title: string;
@@ -46,14 +47,16 @@ function parseCSVToStudents(csvContent: string): Student[] {
   const gradeColIndex = findColumn(headers, ["grade", "year", "standard"]);
   const sectionColIndex = findColumn(headers, ["section", "divison"]);
 
-  if (
-    idColumn === -1 ||
-    nameColIndex === -1 ||
-    gradeColIndex === -1 ||
-    sectionColIndex === -1
-  ) {
+  const missingColumns = [];
+
+  if (idColumn === -1) missingColumns.push("id");
+  if (nameColIndex === -1) missingColumns.push("name");
+  if (gradeColIndex === -1) missingColumns.push("grade");
+  if (sectionColIndex === -1) missingColumns.push("section");
+
+  if (missingColumns.length > 0) {
     throw new Error(
-      "Could not find all required columns (id, name, grade, section)",
+      `Could not find the following required columns: ${missingColumns.join(", ")}`,
     );
   }
 
@@ -177,7 +180,7 @@ interface VoucherInfo {
   voucherDate: string;
 }
 
-function parseVoucherInfo(input: string): VoucherInfo {
+function parseVoucherInfo(input: string, id: string): VoucherInfo {
   const cleaned = input.trim();
 
   // Match date-only format first (e.g., "28-Aug-2015")
@@ -188,6 +191,7 @@ function parseVoucherInfo(input: string): VoucherInfo {
       voucherNo: "",
       voucherDate: parseCustomDate(
         `${dateOnlyMatch[1]} ${dateOnlyMatch[2]} ${dateOnlyMatch[3]}`,
+        id,
       ).toISOString(),
     };
   }
@@ -200,7 +204,7 @@ function parseVoucherInfo(input: string): VoucherInfo {
   voucherNo = parts[0];
   dateStr = parts.slice(1).join(" ");
 
-  const date = parseCustomDate(dateStr);
+  const date = parseCustomDate(dateStr, id);
 
   return {
     voucherNo,
@@ -208,7 +212,10 @@ function parseVoucherInfo(input: string): VoucherInfo {
   };
 }
 
-function parseCustomDate(dateStr: string): Date {
+function parseCustomDate(dateStr: string, id: string): Date {
+  if (!dateStr) return new Date();
+  if (dateStr.toLowerCase().includes("copy")) return new Date();
+
   const monthMap: { [key: string]: number } = {
     jan: 0,
     january: 0,
@@ -235,9 +242,29 @@ function parseCustomDate(dateStr: string): Date {
     december: 11,
   };
 
-  const parts = dateStr.trim().split(/\s+/);
+  const trimmedDateStr = dateStr.trim().replace(/\./g, "").toLowerCase();
+
+  // Check for DD/MM/YYYY format
+  const ddMmYyyyMatch = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmedDateStr);
+  if (ddMmYyyyMatch) {
+    const day = parseInt(ddMmYyyyMatch[1], 10);
+    const month = parseInt(ddMmYyyyMatch[2], 10) - 1; // Convert to zero-based index
+    const year = parseInt(ddMmYyyyMatch[3], 10);
+
+    const date = new Date(year, month, day, 12, 0, 0, 0);
+    if (isNaN(date.getTime())) {
+      console.log(dateStr, id, "ID0");
+      throw new Error("Invalid date");
+    }
+
+    return date;
+  }
+
+  // Custom format with month names
+  const parts = trimmedDateStr.split(/\s+/);
 
   if (parts.length !== 3) {
+    console.log(dateStr, id, "IDF");
     throw new Error("Invalid date format");
   }
 
@@ -246,12 +273,14 @@ function parseCustomDate(dateStr: string): Date {
   const year = parseInt(parts[2], 10);
 
   if (isNaN(day) || month === undefined || isNaN(year)) {
+    console.log(dateStr, id, "IDC");
     throw new Error("Invalid date components");
   }
 
   const date = new Date(year, month, day, 12, 0, 0, 0);
 
   if (isNaN(date.getTime())) {
+    console.log(dateStr, id, "ID");
     throw new Error("Invalid date");
   }
 
@@ -259,10 +288,12 @@ function parseCustomDate(dateStr: string): Date {
 }
 
 function parseCsvToBooks(csvContent: string): Book[] {
-  const lines = csvContent.split("\n").filter((line) => line.trim());
+  const lines = csvContent.split("\n").filter((line) => line?.trim());
+  if (lines.length === 0) throw new Error("Empty CSV file");
 
-  const headers = lines[0].split(",").map((header) => header.trim());
+  const headers = lines[0].split(",").map((header) => header?.trim() || "");
 
+  // Column index finding remains the same
   const idColumn = findColumn(headers, ["acc"]);
   const dateColIndex = findColumn(headers, ["date"]);
   const titleColIndex = findColumn(headers, ["title"]);
@@ -277,88 +308,127 @@ function parseCsvToBooks(csvContent: string): Book[] {
   const isbnColIndex = findColumn(headers, ["isbn"]);
   const voucherColIndex = findColumn(headers, ["voucher"]);
 
-  if (
-    idColumn === -1 ||
-    dateColIndex === -1 ||
-    titleColIndex === -1 ||
-    authorColIndex === -1 ||
-    placeColIndex === -1 ||
-    yearColIndex === -1 ||
-    pageColIndex === -1 ||
-    volumeColIndex === -1 ||
-    sourceColIndex === -1 ||
-    costColIndex === -1 ||
-    classColIndex === -1 ||
-    isbnColIndex === -1 ||
-    voucherColIndex === -1
-  ) {
+  // Column validation remains the same
+  const missingColumns = [];
+  if (idColumn === -1) missingColumns.push("id");
+  if (dateColIndex === -1) missingColumns.push("date");
+  if (titleColIndex === -1) missingColumns.push("title");
+  if (authorColIndex === -1) missingColumns.push("author");
+  if (placeColIndex === -1) missingColumns.push("place");
+  if (yearColIndex === -1) missingColumns.push("year");
+  if (pageColIndex === -1) missingColumns.push("pages");
+  if (volumeColIndex === -1) missingColumns.push("volume");
+  if (sourceColIndex === -1) missingColumns.push("source");
+  if (costColIndex === -1) missingColumns.push("cost");
+  if (classColIndex === -1) missingColumns.push("class");
+  if (isbnColIndex === -1) missingColumns.push("isbn");
+  if (voucherColIndex === -1) missingColumns.push("voucher");
+
+  if (missingColumns.length > 0) {
     throw new Error(
-      "Could not find all required columns (id, title, author, place, year, pages, volume, source, cost, isbn, voucher, remarks)",
+      `Could not find the following required columns: ${missingColumns.join(", ")}`,
     );
   }
 
   const books: Book[] = [];
   for (let i = 1; i < lines.length; i++) {
-    const columns = lines[i].split(",").map((col) => col.trim());
+    try {
+      // Safely handle CSV values with proper quote handling
+      const columns =
+        lines[i]
+          .match(/(?:,|^)(?:"([^"]*)"|([^",]*))/g)
+          ?.map((val) => val?.replace(/^,/, "")?.trim() || "") || [];
 
-    if (
-      columns.length >=
-      Math.max(
-        idColumn,
-        dateColIndex,
-        titleColIndex,
-        authorColIndex,
-        placeColIndex,
-        yearColIndex,
-        pageColIndex,
-        volumeColIndex,
-        sourceColIndex,
-        costColIndex,
-        classColIndex,
-        isbnColIndex,
-        voucherColIndex,
-      )
-    ) {
+      if (
+        columns.length <
+        Math.max(
+          idColumn,
+          dateColIndex,
+          titleColIndex,
+          authorColIndex,
+          placeColIndex,
+          yearColIndex,
+          pageColIndex,
+          volumeColIndex,
+          sourceColIndex,
+          costColIndex,
+          classColIndex,
+          isbnColIndex,
+          voucherColIndex,
+        ) +
+          1
+      ) {
+        console.warn(`Skipping malformed line ${i + 1}: insufficient columns`);
+        continue;
+      }
+
+      // Safe volume parsing
       let vol = 0;
       let total_volume = 0;
       const volumeValue = columns[volumeColIndex];
       if (volumeValue) {
         const volumeParts = volumeValue.split("of").map((part) => part.trim());
         if (volumeParts.length === 2) {
-          vol = parseInt(volumeParts[0], 10);
-          total_volume = parseInt(volumeParts[1], 10);
+          vol = parseInt(volumeParts[0], 10) || 0;
+          total_volume = parseInt(volumeParts[1], 10) || 0;
         } else {
-          vol = total_volume = parseInt(volumeParts[0], 10);
+          vol = total_volume = parseInt(volumeParts[0], 10) || 0;
         }
       }
 
-      const { voucherNo: voucher_no, voucherDate: voucher_date } =
-        parseVoucherInfo(columns[voucherColIndex]);
+      // Safe parsing of dates and voucher info
+      let bookDate: Date;
+      try {
+        bookDate = parseCustomDate(
+          columns[dateColIndex] || "",
+          columns[idColumn],
+        );
+      } catch (e) {
+        console.warn(`Invalid date on line ${i + 1}, using current date`);
+        bookDate = new Date();
+        console.error(e);
+      }
+
+      let voucherInfo = {
+        voucherNo: "",
+        voucherDate: new Date().toISOString(),
+      };
+      try {
+        voucherInfo = parseVoucherInfo(
+          columns[voucherColIndex] || "",
+          columns[idColumn],
+        );
+      } catch (e) {
+        console.warn(`Invalid voucher info on line ${i + 1}`);
+        console.error(e);
+      }
 
       books.push({
-        date: parseCustomDate(columns[dateColIndex]).toISOString(),
-        bid: parseInt(columns[idColumn], 10),
-        title: columns[titleColIndex],
-        author: columns[authorColIndex],
-        publisher: columns[placeColIndex],
-        year: parseInt(columns[yearColIndex], 10),
-        pages: parseInt(columns[pageColIndex], 10),
+        date: bookDate.toISOString(),
+        bid: parseInt(columns[idColumn], 10) || 0,
+        title: columns[titleColIndex] || "",
+        author: columns[authorColIndex] || "",
+        publisher: columns[placeColIndex] || "",
+        year: parseInt(columns[yearColIndex], 10) || 0,
+        pages: parseInt(columns[pageColIndex], 10) || 0,
         volume: vol,
         total_volume,
-        source: columns[sourceColIndex],
-        cost: columns[costColIndex],
-        class_no: columns[classColIndex],
-        isbn: columns[isbnColIndex],
-        voucher_no,
-        voucher_date,
+        source: columns[sourceColIndex] || "",
+        cost: columns[costColIndex] || "",
+        class_no: columns[classColIndex] || "",
+        isbn: columns[isbnColIndex] || null,
+        voucher_no: voucherInfo.voucherNo,
+        voucher_date: voucherInfo.voucherDate,
         condition: "original",
       });
+    } catch (error) {
+      console.warn(`Error processing line ${i + 1}:`, error);
+      continue;
     }
   }
 
   return books;
 }
-
 export async function processBookCsvData(state: unknown, formData: FormData) {
   try {
     const token = getToken();
@@ -376,6 +446,96 @@ export async function processBookCsvData(state: unknown, formData: FormData) {
 
     return { success: true, books };
   } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+}
+
+export async function uploadBookCsvData(books: Book[]) {
+  try {
+    const token = await getToken();
+    if (!token) {
+      throw new Error("Unauthenticated.");
+    }
+
+    const payload = await getPayload({ config });
+
+    for (let i = 0; i < books.length; i++) {
+      const {
+        date,
+        bid,
+        title,
+        author,
+        publisher,
+        year,
+        pages,
+        volume,
+        total_volume,
+        source,
+        cost,
+        class_no,
+        isbn,
+        voucher_no,
+        voucher_date,
+      } = books[i];
+
+      const data: Omit<
+        BookPayload,
+        "id" | "sizes" | "createdAt" | "updatedAt"
+      > &
+        // @ts-expect-error meh
+        Partial<Pick<BookPayload, "id" | "sizes" | "createdAt" | "updatedAt">> =
+        {
+          date,
+          bid,
+          title,
+          author: author.length < 3 ? "null" : author,
+          publisher: publisher.length < 3 ? "null" : publisher,
+          year,
+          pages,
+          volume,
+          total_volume,
+          source: source.length < 3 ? "null" : source,
+          cost: cost.length < 3 ? "null" : cost,
+          class_no: class_no.length < 3 ? "null" : class_no,
+          isbn,
+          voucher_no,
+          voucher_date,
+          condition: "original",
+        };
+
+      const existing = await payload.find({
+        collection: "book",
+        where: {
+          bid: {
+            like: bid,
+          },
+        },
+      });
+
+      if (!existing.totalDocs) {
+        await payload.create({
+          collection: "book",
+          data,
+        });
+      } else {
+        await payload.update({
+          collection: "book",
+          where: {
+            id: {
+              like: existing.docs[0].id,
+            },
+          },
+          data,
+        });
+      }
+    }
+
+    revalidatePath("/lms/students");
+    return {
+      success: true,
+    };
+  } catch (error) {
+    revalidatePath("/lms/students");
     return { success: false, error: (error as Error).message };
   }
 }
