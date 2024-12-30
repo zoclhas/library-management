@@ -1,10 +1,7 @@
 "use client";
 
+import { markReturned } from "@/actions/log";
 import { Button } from "@/components/ui/button";
-import { cellColourDue, formatIsoDate } from "@/lib/utils";
-import { Book, Student } from "@/payload-types";
-import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, BookCheck, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,8 +10,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cellColourDue, formatIsoDate } from "@/lib/utils";
+import { Book, Student } from "@/payload-types";
+import { ColumnDef } from "@tanstack/react-table";
+import {
+  ArrowUpDown,
+  BookCheck,
+  FileX,
+  MoreHorizontal,
+  NotepadTextDashed,
+  SquareBottomDashedScissors,
+} from "lucide-react";
 import { startTransition } from "react";
-import { markReturned } from "@/actions/log";
 
 export interface Current {
   id: string;
@@ -34,6 +41,24 @@ const ActionMenu = ({ data }: { data: Current }) => {
     });
   };
 
+  const handleLost = () => {
+    startTransition(() => {
+      markReturned(data, "lost");
+    });
+  };
+
+  const handleTorn = () => {
+    startTransition(() => {
+      markReturned(data, "torn");
+    });
+  };
+
+  const handleMissing = () => {
+    startTransition(() => {
+      markReturned(data, "missing_pages");
+    });
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -48,8 +73,15 @@ const ActionMenu = ({ data }: { data: Current }) => {
           Mark as returned <BookCheck className="ml-2 h-4 w-4" />
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>View customer</DropdownMenuItem>
-        <DropdownMenuItem>View payment details</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLost}>
+          Mark lost <FileX />
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleTorn}>
+          Mark torn <SquareBottomDashedScissors />
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleMissing}>
+          Mark missing pages <NotepadTextDashed />
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

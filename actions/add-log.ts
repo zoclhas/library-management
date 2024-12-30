@@ -109,6 +109,7 @@ export async function addLog(_: unknown, form: FormData) {
     });
 
     if (alreadyLent.totalDocs) throw new Error("Book is already lent.");
+    if (books.docs[0].condition === "lost") throw new Error("Book is lost.");
 
     const students = await payload.find({
       collection: "student",

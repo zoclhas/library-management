@@ -6,7 +6,10 @@ import config from "@payload-config";
 import { revalidatePath } from "next/cache";
 import { getPayload } from "payload";
 
-export async function markReturned(data: Current) {
+export async function markReturned(
+  data: Current,
+  condition: "original" | "torn" | "missing_pages" | "lost" | null = null,
+) {
   try {
     const token = await getToken();
     if (!token) {
@@ -25,6 +28,20 @@ export async function markReturned(data: Current) {
         returned_date: new Date().toISOString(),
       },
     });
+
+    if (condition) {
+      await payload.update({
+        collection: "book",
+        where: {
+          id: {
+            equals: String(data.book.id),
+          },
+        },
+        data: {
+          condition,
+        },
+      });
+    }
 
     await payload.update({
       collection: "current",
