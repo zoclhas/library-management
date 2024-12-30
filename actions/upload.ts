@@ -183,16 +183,25 @@ interface VoucherInfo {
 function parseVoucherInfo(input: string, id: string): VoucherInfo {
   const cleaned = input.trim();
 
-  // Match date-only format first (e.g., "28-Aug-2015")
-  const dateOnlyRegex = /^(\d{1,2})[-\s]([A-Za-z]+)[-\s](\d{4})$/;
+  // Match date-only format first (e.g., "28-Aug-2015" or "28/08/2015")
+  const dateOnlyRegex = /^(\d{1,2})[-/\s]([A-Za-z]+|\d{1,2})[-/\s](\d{4})$/;
   const dateOnlyMatch = cleaned.match(dateOnlyRegex);
   if (dateOnlyMatch) {
+    const day = dateOnlyMatch[1];
+    const month = dateOnlyMatch[2];
+    const year = dateOnlyMatch[3];
+
+    let formattedDateStr = "";
+
+    if (isNaN(Number(month))) {
+      formattedDateStr = `${day} ${month} ${year}`;
+    } else {
+      formattedDateStr = `${day}/${month}/${year}`;
+    }
+
     return {
       voucherNo: "",
-      voucherDate: parseCustomDate(
-        `${dateOnlyMatch[1]} ${dateOnlyMatch[2]} ${dateOnlyMatch[3]}`,
-        id,
-      ).toISOString(),
+      voucherDate: parseCustomDate(formattedDateStr, id).toISOString(),
     };
   }
 
