@@ -30,6 +30,10 @@ export default async function StudentId({
   const sid = (await params).sid;
 
   const student = await getStudent(sid);
+  const grade = student.grade
+    .replace("kg_1", "KG 1")
+    .replace("kg_2", "KG 2")
+    .replace("pre_kg", "Pre KG");
 
   return (
     <>
@@ -57,8 +61,7 @@ export default async function StudentId({
                 <strong>Name:</strong> {student.name}
               </li>
               <li>
-                <strong>Grade &amp; Section:</strong> {student.grade}{" "}
-                {student.section}
+                <strong>Grade &amp; Section:</strong> {grade} {student.section}
               </li>
             </ul>
           </CardContent>

@@ -59,11 +59,21 @@ export function DataTable<TData, TValue>({
   const createQueryString = React.useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (value) {
+
+      if (name === "q") {
+        if (value) {
+          params.set(name, value);
+          params.set("page", "1");
+        } else {
+          params.delete(name);
+          params.delete("page");
+        }
+      } else if (value) {
         params.set(name, value);
       } else {
         params.delete(name);
       }
+
       return params.toString();
     },
     [searchParams],
@@ -71,7 +81,9 @@ export function DataTable<TData, TValue>({
 
   React.useEffect(() => {
     router.push(pathname + "?" + createQueryString("q", debouncedQuery));
-  }, [debouncedQuery, router, pathname, createQueryString]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery]);
+
   return (
     <div>
       <div className="flex items-center py-4">
