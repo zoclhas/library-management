@@ -253,25 +253,50 @@ function parseCustomDate(dateStr: string, id: string): Date {
 
   const trimmedDateStr = dateStr.trim().replace(/\./g, "").toLowerCase();
 
-  // Check for DD/MM/YYYY format
-  const ddMmYyyyMatch = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmedDateStr);
-  if (ddMmYyyyMatch) {
-    const day = parseInt(ddMmYyyyMatch[1], 10);
-    const month = parseInt(ddMmYyyyMatch[2], 10) - 1; // Convert to zero-based index
-    const year = parseInt(ddMmYyyyMatch[3], 10);
+  // Check for MM/DD/YYYY format (American)
+  const mmDdYyyyMatch = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmedDateStr);
+  if (mmDdYyyyMatch) {
+    const month = parseInt(mmDdYyyyMatch[1], 10) - 1; // Convert to zero-based index
+    const day = parseInt(mmDdYyyyMatch[2], 10);
+    const year = parseInt(mmDdYyyyMatch[3], 10);
+
+    // Validate month and day ranges
+    if (month < 0 || month > 11 || day < 1 || day > 31) {
+      console.log(dateStr, id, "IDA"); // Invalid Date American
+      throw new Error("Invalid date");
+    }
 
     const date = new Date(year, month, day, 12, 0, 0, 0);
     if (isNaN(date.getTime())) {
       console.log(dateStr, id, "ID0");
       throw new Error("Invalid date");
     }
+    return date;
+  }
 
+  // Check for DD/MM/YYYY format (European)
+  const ddMmYyyyMatch = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmedDateStr);
+  if (ddMmYyyyMatch) {
+    const day = parseInt(ddMmYyyyMatch[1], 10);
+    const month = parseInt(ddMmYyyyMatch[2], 10) - 1; // Convert to zero-based index
+    const year = parseInt(ddMmYyyyMatch[3], 10);
+
+    // Validate month and day ranges
+    if (month < 0 || month > 11 || day < 1 || day > 31) {
+      console.log(dateStr, id, "IDE"); // Invalid Date European
+      throw new Error("Invalid date");
+    }
+
+    const date = new Date(year, month, day, 12, 0, 0, 0);
+    if (isNaN(date.getTime())) {
+      console.log(dateStr, id, "ID0");
+      throw new Error("Invalid date");
+    }
     return date;
   }
 
   // Custom format with month names
   const parts = trimmedDateStr.split(/\s+/);
-
   if (parts.length !== 3) {
     console.log(dateStr, id, "IDF");
     throw new Error("Invalid date format");
@@ -287,7 +312,6 @@ function parseCustomDate(dateStr: string, id: string): Date {
   }
 
   const date = new Date(year, month, day, 12, 0, 0, 0);
-
   if (isNaN(date.getTime())) {
     console.log(dateStr, id, "ID");
     throw new Error("Invalid date");
@@ -340,13 +364,16 @@ function parseCsvToBooks(csvContent: string): Book[] {
   }
 
   const books: Book[] = [];
+  const csvRegex = /(?:,|^)(?:"((?:[^"]|"")*)"|([^",]*))/g; // Updated regex
+
   for (let i = 1; i < lines.length; i++) {
     try {
-      // Safely handle CSV values with proper quote handling
-      const columns =
-        lines[i]
-          .match(/(?:,|^)(?:"([^"]*)"|([^",]*))/g)
-          ?.map((val) => val?.replace(/^,/, "")?.trim() || "") || [];
+      // Parse CSV row using regex to handle escaped quotes
+      const columns = [];
+      let match;
+      while ((match = csvRegex.exec(lines[i])) !== null) {
+        columns.push((match[1]?.replace(/""/g, '"') || match[2] || "").trim());
+      }
 
       if (
         columns.length <
@@ -438,6 +465,7 @@ function parseCsvToBooks(csvContent: string): Book[] {
 
   return books;
 }
+
 export async function processBookCsvData(state: unknown, formData: FormData) {
   try {
     const token = getToken();
@@ -512,30 +540,35 @@ export async function uploadBookCsvData(books: Book[]) {
           condition: "original",
         };
 
-      const existing = await payload.find({
-        collection: "book",
-        where: {
-          bid: {
-            like: bid,
-          },
-        },
-      });
-
-      if (!existing.totalDocs) {
-        await payload.create({
-          collection: "book",
-          data,
-        });
-      } else {
-        await payload.update({
+      try {
+        const existing = await payload.find({
           collection: "book",
           where: {
-            id: {
-              like: existing.docs[0].id,
+            bid: {
+              like: bid,
             },
           },
-          data,
         });
+
+        if (!existing.totalDocs) {
+          await payload.create({
+            collection: "book",
+            data,
+          });
+        } else {
+          await payload.update({
+            collection: "book",
+            where: {
+              id: {
+                like: existing.docs[0].id,
+              },
+            },
+            data,
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        console.log(data);
       }
     }
 
