@@ -30,6 +30,7 @@ export const columns: ColumnDef<Current>[] = [
     id: "bid",
     accessorKey: "book.bid",
     header: "Acc no.",
+    accessorFn: (originalRow) => originalRow.book.bid.toString(),
   },
   {
     accessorKey: "book.title",
@@ -101,7 +102,7 @@ export const columns: ColumnDef<Current>[] = [
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText("hi")}
               >
-                Copy payment ID
+                Mark as returned
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>View customer</DropdownMenuItem>

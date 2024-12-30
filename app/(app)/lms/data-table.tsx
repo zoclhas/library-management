@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -11,19 +12,19 @@ import {
 } from "@/components/ui/table";
 import {
   ColumnDef,
+  ColumnFiltersState,
   FilterFn,
+  SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { addDays, isPast, isToday, parseISO } from "date-fns";
-import * as React from "react";
+import React from "react";
 
-// Define the filter options
 type DueDateFilter = "all" | "today" | "past" | "soon" | "attention";
 
 interface DataTableProps<TData, TValue> {
@@ -61,6 +62,9 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [dueDateFilter, setDueDateFilter] =
     React.useState<DueDateFilter>("all");
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
+    { id: "bid", value: "" },
+  ]);
 
   const table = useReactTable({
     data,
@@ -73,6 +77,7 @@ export function DataTable<TData, TValue>({
     state: {
       sorting,
       globalFilter: dueDateFilter,
+      columnFilters,
     },
     globalFilterFn: dueDateFilterFn,
   });
@@ -87,17 +92,37 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4 pt-8">
-      <div className="flex flex-wrap gap-2">
-        {filterOptions.map((option) => (
-          <Button
-            key={option.value}
-            variant={dueDateFilter === option.value ? "default" : "outline"}
-            size="sm"
-            onClick={() => setDueDateFilter(option.value)}
-          >
-            {option.label}
-          </Button>
-        ))}
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap gap-2">
+          {filterOptions.map((option) => (
+            <Button
+              key={option.value}
+              variant={dueDateFilter === option.value ? "default" : "outline"}
+              size="sm"
+              onClick={() => setDueDateFilter(option.value)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <Input
+            type="number"
+            placeholder="Filter Acc No..."
+            value={
+              String(
+                columnFilters.find((filter) => filter.id === "bid")?.value,
+              ) ?? ""
+            }
+            onChange={(event) => {
+              const value = event.target.value;
+              setColumnFilters([{ id: "bid", value }]);
+              table.getColumn("bid")?.setFilterValue(value);
+              console.log(table.getColumn("bid"));
+            }}
+            className="max-w-sm"
+          />{" "}
+        </div>
       </div>
 
       <div className="rounded-md border">
