@@ -10,25 +10,24 @@ async function getBook(id: string) {
   try {
     const payload = await getPayload({ config });
 
-    const student = await payload.findByID({
+    const book = await payload.findByID({
       collection: "book",
       id,
     });
 
-    return student;
+    return book;
   } catch (err) {
     console.error(err);
     redirect("/lms/books");
   }
 }
 
-export default async function StudentId({
+export default async function BookId({
   params,
 }: {
   params: Promise<{ bid: string }>;
 }) {
   const bid = (await params).bid;
-
   const book = await getBook(bid);
 
   return (
@@ -37,7 +36,7 @@ export default async function StudentId({
         <div className="flex items-center justify-between gap-2 pb-8 max-sm:flex-col">
           <h1 className="text-2xl font-bold">{book.title}</h1>
           <Button variant="outline" asChild>
-            <Link href={`/lms/students/${bid}/edit`}>
+            <Link href={`/lms/books/${bid}/edit`}>
               <Pencil /> Edit
             </Link>
           </Button>

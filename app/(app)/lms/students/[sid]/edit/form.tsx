@@ -32,6 +32,7 @@ export function EditForm({ id, student }: { id: string; student: Student }) {
 
   return (
     <form className="w-full" action={action}>
+      <input className="hidden" value={id} />
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Student Details</CardTitle>

@@ -50,7 +50,7 @@ export async function editStudent(_: unknown, formData: FormData) {
   }
 }
 
-export async function addBook(_: unknown, formData: FormData) {
+export async function editBook(_: unknown, formData: FormData) {
   try {
     const token = await getToken();
     if (!token) {
@@ -59,6 +59,7 @@ export async function addBook(_: unknown, formData: FormData) {
 
     const payload = await getPayload({ config });
 
+    const id = formData.get("id")!;
     const date = String(formData.get("date")!);
     const bid = Number(formData.get("bid")!);
     const title = String(formData.get("title")!);
@@ -84,8 +85,22 @@ export async function addBook(_: unknown, formData: FormData) {
       | "missing_pages"
       | "lost";
 
-    await payload.create({
+    await payload.update({
       collection: "book",
+      where: {
+        or: [
+          {
+            id: {
+              equals: id,
+            },
+          },
+          {
+            bid: {
+              equals: bid,
+            },
+          },
+        ],
+      },
       data: {
         date,
         bid,
