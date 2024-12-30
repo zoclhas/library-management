@@ -146,7 +146,7 @@ export interface Book {
 export interface Current {
   id: string;
   book: string | Book;
-  Student: string | Student;
+  student: string | Student;
   lend_date: string;
   due_date: string;
   returned?: boolean | null;
@@ -160,9 +160,9 @@ export interface Current {
 export interface Previous {
   id: string;
   book: string | Book;
-  Student: string | Student;
+  student: string | Student;
   lend_date: string;
-  Returned_date: string;
+  returned_date: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -314,7 +314,7 @@ export interface BookSelect<T extends boolean = true> {
  */
 export interface CurrentSelect<T extends boolean = true> {
   book?: T;
-  Student?: T;
+  student?: T;
   lend_date?: T;
   due_date?: T;
   returned?: T;
@@ -327,9 +327,9 @@ export interface CurrentSelect<T extends boolean = true> {
  */
 export interface PreviousSelect<T extends boolean = true> {
   book?: T;
-  Student?: T;
+  student?: T;
   lend_date?: T;
-  Returned_date?: T;
+  returned_date?: T;
   updatedAt?: T;
   createdAt?: T;
 }

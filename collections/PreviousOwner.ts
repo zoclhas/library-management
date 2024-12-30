@@ -20,7 +20,7 @@ export const PreviousOwner: CollectionConfig = {
           },
         },
         {
-          name: "Student",
+          name: "student",
           type: "relationship",
           relationTo: "student",
           hasMany: false,
@@ -44,7 +44,7 @@ export const PreviousOwner: CollectionConfig = {
           },
         },
         {
-          name: "Returned_date",
+          name: "returned_date",
           label: "Returned Date",
           type: "date",
           required: true,

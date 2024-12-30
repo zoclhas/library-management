@@ -80,7 +80,6 @@ export const bookColumns: ColumnDef<Book>[] = [
   },
   {
     id: "actions", // Unique ID for the column
-    header: "", // Leave header blank
     cell: ({ row }) => (
       <div className="flex justify-end space-x-2">
         <Button variant="outline" size="sm" asChild>

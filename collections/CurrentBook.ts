@@ -20,7 +20,7 @@ export const CurrentBook: CollectionConfig = {
           },
         },
         {
-          name: "Student",
+          name: "student",
           type: "relationship",
           relationTo: "student",
           hasMany: false,

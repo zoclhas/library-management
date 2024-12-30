@@ -1,5 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cellColourDue, formatIsoDate } from "@/lib/utils";
+import { Book } from "@/payload-types";
 import config from "@payload-config";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
@@ -22,6 +32,42 @@ async function getStudent(id: string) {
   }
 }
 
+export async function getCurrentBooksStudent(id: string) {
+  try {
+    const payload = await getPayload({ config });
+
+    return payload.find({
+      collection: "current",
+      where: {
+        student: {
+          equals: id,
+        },
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    redirect("/lms/students");
+  }
+}
+
+async function getPreviousBooksStudent(id: string) {
+  try {
+    const payload = await getPayload({ config });
+
+    return payload.find({
+      collection: "previous",
+      where: {
+        student: {
+          equals: id,
+        },
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    redirect("/lms/students");
+  }
+}
+
 export default async function StudentId({
   params,
 }: {
@@ -34,6 +80,9 @@ export default async function StudentId({
     .replace("kg_1", "KG 1")
     .replace("kg_2", "KG 2")
     .replace("pre_kg", "Pre KG");
+
+  const current = await getCurrentBooksStudent(sid);
+  const previous = await getPreviousBooksStudent(sid);
 
   return (
     <>
@@ -48,7 +97,7 @@ export default async function StudentId({
         </div>
       </section>
       <section className="grid gap-8 md:grid-cols-[0.5fr_1.5fr]">
-        <Card>
+        <Card className="h-max">
           <CardHeader>
             <CardTitle>Student Details</CardTitle>
           </CardHeader>
@@ -67,7 +116,68 @@ export default async function StudentId({
           </CardContent>
         </Card>
         <div>
-          <h2 className="pb-4 text-xl font-semibold">Previous Books</h2>
+          {current.totalDocs ? (
+            <div className="pb-8">
+              <h2 className="pb-4 text-xl font-semibold">Current Books</h2>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Acc No.</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Lend Date</TableHead>
+                    <TableHead>Due Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {current.docs.map((t) => (
+                    <TableRow key={t.id}>
+                      <TableCell className="font-bold">
+                        {(t.book as Book).bid}
+                      </TableCell>
+                      <TableCell>{(t.book as Book).title}</TableCell>
+                      <TableCell>{formatIsoDate(t.lend_date)}</TableCell>
+                      <TableCell
+                        className={cellColourDue(new Date(t.due_date))}
+                      >
+                        {formatIsoDate(t.due_date)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+
+                  <TableRow></TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          ) : null}
+          {previous.totalDocs ? (
+            <div>
+              <h2 className="pb-4 text-xl font-semibold">Previous Books</h2>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Acc No.</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Lend Date</TableHead>
+                    <TableHead>Returned Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {previous.docs.map((t) => (
+                    <TableRow key={t.id}>
+                      <TableCell className="font-bold">
+                        {(t.book as Book).bid}
+                      </TableCell>
+                      <TableCell>{(t.book as Book).title}</TableCell>
+                      <TableCell>{formatIsoDate(t.lend_date)}</TableCell>
+                      <TableCell>{formatIsoDate(t.returned_date)}</TableCell>
+                    </TableRow>
+                  ))}
+
+                  <TableRow></TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          ) : null}
         </div>
       </section>
     </>
