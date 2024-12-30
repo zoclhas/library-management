@@ -39,9 +39,18 @@ export async function getCurrentBooksStudent(id: string) {
     return payload.find({
       collection: "current",
       where: {
-        student: {
-          equals: id,
-        },
+        and: [
+          {
+            student: {
+              equals: id,
+            },
+          },
+          {
+            returned: {
+              equals: false,
+            },
+          },
+        ],
       },
     });
   } catch (err) {
@@ -61,6 +70,7 @@ async function getPreviousBooksStudent(id: string) {
           equals: id,
         },
       },
+      limit: 100,
     });
   } catch (err) {
     console.error(err);
@@ -143,8 +153,6 @@ export default async function StudentId({
                       </TableCell>
                     </TableRow>
                   ))}
-
-                  <TableRow></TableRow>
                 </TableBody>
               </Table>
             </div>
@@ -172,8 +180,6 @@ export default async function StudentId({
                       <TableCell>{formatIsoDate(t.returned_date)}</TableCell>
                     </TableRow>
                   ))}
-
-                  <TableRow></TableRow>
                 </TableBody>
               </Table>
             </div>

@@ -1,5 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cellColourDue } from "@/lib/utils";
+import { Student } from "@/payload-types";
 import config from "@payload-config";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
@@ -22,6 +32,52 @@ async function getBook(id: string) {
   }
 }
 
+async function getCurrentOwner(id: string) {
+  try {
+    const payload = await getPayload({ config });
+
+    return payload.find({
+      collection: "current",
+      where: {
+        and: [
+          {
+            book: {
+              equals: id,
+            },
+          },
+          {
+            returned: {
+              equals: false,
+            },
+          },
+        ],
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    redirect("/lms/books");
+  }
+}
+
+async function getPreviousOwners(id: string) {
+  try {
+    const payload = await getPayload({ config });
+
+    return payload.find({
+      collection: "previous",
+      where: {
+        book: {
+          equals: id,
+        },
+      },
+      limit: 100,
+    });
+  } catch (err) {
+    console.error(err);
+    redirect("/lms/books");
+  }
+}
+
 export default async function BookId({
   params,
 }: {
@@ -29,6 +85,9 @@ export default async function BookId({
 }) {
   const bid = (await params).bid;
   const book = await getBook(bid);
+
+  const current = await getCurrentOwner(bid);
+  const previous = await getPreviousOwners(bid);
 
   return (
     <>
@@ -43,7 +102,7 @@ export default async function BookId({
         </div>
       </section>
       <section className="grid gap-8 md:grid-cols-[0.5fr_1.5fr]">
-        <Card>
+        <Card className="h-max">
           <CardHeader>
             <CardTitle>Book Details</CardTitle>
           </CardHeader>
@@ -100,7 +159,67 @@ export default async function BookId({
           </CardContent>
         </Card>
         <div>
-          <h2 className="pb-4 text-xl font-semibold">Previous Owners</h2>
+          <div>
+            {current.totalDocs ? (
+              <div className="pb-8">
+                <h2 className="pb-4 text-xl font-semibold">Current Owner</h2>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Student ID</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Lend Date</TableHead>
+                      <TableHead>Due Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {current.docs.map((t) => (
+                      <TableRow key={t.id}>
+                        <TableCell className="font-bold">
+                          {(t.student as Student).sid}
+                        </TableCell>
+                        <TableCell>{(t.student as Student).name}</TableCell>
+                        <TableCell>{formatIsoDate(t.lend_date)}</TableCell>
+                        <TableCell
+                          className={cellColourDue(new Date(t.due_date))}
+                        >
+                          {formatIsoDate(t.due_date)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : null}
+
+            {previous.totalDocs ? (
+              <div className="pb-8">
+                <h2 className="pb-4 text-xl font-semibold">Previous Owners</h2>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Student ID</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Lend Date</TableHead>
+                      <TableHead>Returned Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {previous.docs.map((t) => (
+                      <TableRow key={t.id}>
+                        <TableCell className="font-bold">
+                          {(t.student as Student).sid}
+                        </TableCell>
+                        <TableCell>{(t.student as Student).name}</TableCell>
+                        <TableCell>{formatIsoDate(t.lend_date)}</TableCell>
+                        <TableCell>{formatIsoDate(t.returned_date)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : null}
+          </div>
         </div>
       </section>
     </>
