@@ -32,7 +32,7 @@ async function getStudent(id: string) {
   }
 }
 
-export async function getCurrentBooksStudent(id: string) {
+async function getCurrentBooksStudent(id: string) {
   try {
     const payload = await getPayload({ config });
 

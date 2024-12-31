@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import {
   Card,
   CardContent,
@@ -29,6 +31,7 @@ async function getLogs() {
       limit: 1000,
     });
   } catch (err) {
+    console.error(err);
     throw new Error("Failed to get logs. " + err);
   }
 }

@@ -121,8 +121,8 @@ export async function addLog(_: unknown, form: FormData) {
     });
     const student = students.docs[0].id;
 
-    const lend_date = String(form.get("lend_date")!);
-    const due_date = String(form.get("return_date")!);
+    const lend_date = new Date(form.get("lend_date")! as string).toISOString();
+    const due_date = new Date(form.get("return_date")! as string).toISOString();
 
     const log = await payload.create({
       collection: "current",

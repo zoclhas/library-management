@@ -167,7 +167,9 @@ export function AddLogForm() {
                 placeholder="####"
                 min={0}
                 value={
-                  returnDate ? lendDate.toLocaleDateString("fr-CA") : undefined
+                  returnDate
+                    ? returnDate.toLocaleDateString("fr-CA")
+                    : undefined
                 }
                 className="m-0 h-0 w-0 border-0 p-0"
                 required

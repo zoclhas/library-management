@@ -263,8 +263,8 @@ export default function AddBook() {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? (
-                            format(date, "PPP")
+                          {voucherDate ? (
+                            format(voucherDate, "PPP")
                           ) : (
                             <span>Pick a date</span>
                           )}
