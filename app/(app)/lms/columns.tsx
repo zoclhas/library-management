@@ -18,9 +18,11 @@ import {
   BookCheck,
   FileX,
   MoreHorizontal,
+  NotebookPen,
   NotepadTextDashed,
   SquareBottomDashedScissors,
 } from "lucide-react";
+import Link from "next/link";
 import { startTransition } from "react";
 
 export interface Current {
@@ -63,24 +65,32 @@ const ActionMenu = ({ data }: { data: Current }) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
           <MoreHorizontal className="h-4 w-4" />
+          <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem onClick={handleReturn}>
-          Mark as returned <BookCheck className="ml-2 h-4 w-4" />
+          <BookCheck /> Mark as returned
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem asChild>
+          <Link href={`/lms/log/${data.id}`}>
+            <NotebookPen />
+            Modify/Extend
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLost}>
-          Mark lost <FileX />
+          <FileX /> Mark lost
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleTorn}>
-          Mark torn <SquareBottomDashedScissors />
+          <SquareBottomDashedScissors /> Mark torn
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleMissing}>
-          Mark missing pages <NotepadTextDashed />
+          <NotepadTextDashed /> Mark missing pages
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

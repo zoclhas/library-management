@@ -34,6 +34,7 @@ interface DebouncedComboboxProps {
   fetchItems: (
     query: string,
   ) => Promise<{ items: string[]; error: string | null }>;
+  val?: string;
 }
 
 export function DebouncedCombobox({
@@ -41,10 +42,11 @@ export function DebouncedCombobox({
   emptyMessage,
   fetchItems,
   name,
+  val,
 }: DebouncedComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
-  const [inputValue, setInputValue] = React.useState("");
+  const [value, setValue] = React.useState(val ?? "");
+  const [inputValue, setInputValue] = React.useState(val ?? "");
   const [items, setItems] = React.useState<string[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const debouncedInputValue = useDebounce(inputValue, 200);

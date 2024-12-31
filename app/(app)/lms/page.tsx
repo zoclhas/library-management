@@ -29,6 +29,7 @@ async function getLogs() {
         },
       },
       limit: 1000,
+      sort: "-updatedAt",
     });
   } catch (err) {
     console.error(err);

@@ -147,3 +147,71 @@ export async function addLog(_: unknown, form: FormData) {
     };
   }
 }
+
+export async function editLog(_: unknown, form: FormData) {
+  try {
+    const token = await getToken();
+    if (!token) {
+      throw new Error("Not logged in.");
+    }
+
+    const payload = await getPayload({ config });
+
+    const bid = parseInt(String(form.get("bid")!).split(" - ")[0], 10);
+    const sid = parseInt(String(form.get("sid")!).split(" - ")[0], 10);
+
+    const books = await payload.find({
+      collection: "book",
+      where: {
+        bid: {
+          equals: bid,
+        },
+      },
+    });
+    const book = books.docs[0].id;
+
+    if (books.docs[0].condition === "lost") throw new Error("Book is lost.");
+
+    const students = await payload.find({
+      collection: "student",
+      where: {
+        sid: {
+          equals: sid,
+        },
+      },
+    });
+    const student = students.docs[0].id;
+
+    const id = String(form.get("id"));
+    const lend_date = new Date(form.get("lend_date")! as string).toISOString();
+    const due_date = new Date(form.get("return_date")! as string).toISOString();
+    const returned = !!form.get("returned")!;
+
+    await payload.update({
+      collection: "current",
+      where: {
+        id: {
+          equals: id,
+        },
+      },
+      data: {
+        book,
+        student,
+        lend_date,
+        due_date,
+        returned,
+      },
+    });
+
+    return {
+      success: true,
+    };
+  } catch (err) {
+    console.error(err);
+
+    return {
+      success: false,
+      error: String(err),
+    };
+  }
+}
