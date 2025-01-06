@@ -1,6 +1,10 @@
+"use server";
+
 import { LoginFormSchema, FormState } from "@/lib/definitions";
 import { createSession, deleteSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+import config from "@payload-config";
+import { getPayload } from "payload";
 
 export async function login(state: FormState, formData: FormData) {
   const email = formData.get("email");
@@ -17,26 +21,44 @@ export async function login(state: FormState, formData: FormData) {
     };
   }
 
-  const res = await fetch("/api/users/login", {
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
+  // const res = await fetch("/api/users/login", {
+  //   method: "post",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify({
+  //     email,
+  //     password,
+  //   }),
+  // });
+
+  // if (!res.ok) {
+  //   const user: UserResponseErr = await res.json();
+  //   return {
+  //     message: user.errors ? user.errors[0].message : "Failed to login.",
+  //   };
+  // }
+
+  const payload = await getPayload({ config });
+  const res = await payload.login({
+    collection: 'users', // required
+    data: {
+      // required
+      email: 'dev@payloadcms.com',
+      password: 'rip',
     },
-    body: JSON.stringify({
-      email,
-      password,
-    }),
+    depth: 2,
+    locale: 'en',
+    overrideAccess: false,
+    showHiddenFields: true,
   });
 
-  if (!res.ok) {
-    const user: UserResponseErr = await res.json();
+  if (!res.token) {
     return {
-      message: user.errors ? user.errors[0].message : "Failed to login.",
+      message:  "Failed to login.",
     };
   }
-
-  const user: UserResponseOk = await res.json();
-  await createSession(user.token);
+  await createSession(res.token);
 
   redirect("/");
 }
