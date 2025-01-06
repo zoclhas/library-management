@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useActionState } from "react";
 import { LoaderIcon } from "lucide-react";
+import { useActionState } from "react";
 
 export function LoginForm() {
+  // @ts-expect-error meh
   const [state, action, pending] = useActionState(login, undefined);
 
   return (

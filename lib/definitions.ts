@@ -17,5 +17,6 @@ export type FormState =
         password?: string[];
       };
       message?: string;
+      redirect: boolean;
     }
   | undefined;
