@@ -44,8 +44,8 @@ export async function login(state: FormState, formData: FormData) {
     collection: 'users', // required
     data: {
       // required
-      email: 'dev@payloadcms.com',
-      password: 'rip',
+      email: String(email),
+      password: String(password)
     },
     depth: 2,
     locale: 'en',
